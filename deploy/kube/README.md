@@ -1,6 +1,6 @@
-# ping-nodejs
+# Deployment
 
-node.js microservices apps
+Deploying your microservices to kubernetes cluster.
 
 ## Quickstart
 
