@@ -1,0 +1,37 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: micro-backend-foo-v1
+spec:
+  template:
+    metadata:
+      labels:
+        app: micro-backend-foo
+        version: v1
+    spec:
+      containers:
+      - name: backend
+        image: melvinlee/micro-backend-foo:v1
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 80
+        env:
+        resources:
+          requests:
+            cpu: 100m
+          limits:
+            cpu: 150m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-backend-foo
+  labels:
+    app: micro-backend-foo
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  selector:
+    app: micro-backend-foo

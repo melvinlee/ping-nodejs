@@ -1,0 +1,61 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: micro-frontend
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: micro-frontend
+        version: v1
+    spec:
+      containers:
+      - name: frontend
+        image: melvinlee/micro-frontend:v1
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 80
+        readinessProbe:
+          httpGet:
+            path: /readiness
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /liveness
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        env:
+          - name: BACKEND_URL_FOO
+            valueFrom:
+              configMapKeyRef:
+                name: micro-frontend-config
+                key: url.foo
+          - name: BACKEND_URL_BAR
+            valueFrom:
+              configMapKeyRef:
+                name: micro-frontend-config
+                key: url.bar
+        resources:
+          requests:
+            cpu: 80m
+          limits:
+            cpu: 100m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-frontend
+  labels:
+    app: micro-frontend
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  selector:
+    app: micro-frontend
+  type: LoadBalancer
