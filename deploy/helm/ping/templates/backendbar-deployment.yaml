@@ -1,0 +1,58 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "ping.backendbar.fullname" . }}
+  labels:
+    app: {{ template "ping.name" . }}
+    chart: {{ template "ping.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: {{ .Values.backendbar.name }}
+spec:
+  replicas: {{ .Values.backendbar.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "ping.name" . }}
+      release: {{ .Release.Name }}
+      component: {{ .Values.backendbar.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "ping.name" . }}
+        release: {{ .Release.Name }}
+        component: {{ .Values.backendbar.name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.backendbar.image.repository }}:{{ .Values.backendbar.image.tag }}"
+          imagePullPolicy: {{ .Values.backendbar.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /liveness
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readiness
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+{{ toYaml .Values.backendbar.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

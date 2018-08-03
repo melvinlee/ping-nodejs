@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "ping.frontend.fullname" . }}
+  labels:
+    app: {{ template "ping.name" . }}
+    chart: {{ template "ping.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: {{ .Values.frontend.name }}
+spec:
+  type: "{{ .Values.frontend.service.type }}"
+  ports:
+    - port: {{ .Values.frontend.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "ping.name" . }}
+    release: {{ .Release.Name }}
+    component: {{ .Values.frontend.name }}

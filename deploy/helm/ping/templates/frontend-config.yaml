@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "ping.fullname" . }}-frontendconfig
+  labels:
+    app: {{ template "ping.name" . }}
+    chart: {{ template "ping.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+data:
+  url.foo: http://{{ template "ping.backendfoo.fullname" . }}
+  url.bar: http://{{ template "ping.backendbar.fullname" . }}

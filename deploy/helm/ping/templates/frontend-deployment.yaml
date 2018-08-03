@@ -1,0 +1,69 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "ping.frontend.fullname" . }}
+  labels:
+    app: {{ template "ping.name" . }}
+    chart: {{ template "ping.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: {{ .Values.frontend.name }}
+spec:
+  replicas: {{ .Values.frontend.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "ping.name" . }}
+      release: {{ .Release.Name }}
+      component: {{ .Values.frontend.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "ping.name" . }}
+        release: {{ .Release.Name }}
+        component: {{ .Values.frontend.name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /liveness
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readiness
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          env:
+            - name: BACKEND_URL_FOO
+              valueFrom:
+                configMapKeyRef:
+                  name: "{{ template "ping.fullname" . }}-frontendconfig"
+                  key: url.foo
+            - name: BACKEND_URL_BAR
+              valueFrom:
+                configMapKeyRef:
+                  name: "{{ template "ping.fullname" . }}-frontendconfig"
+                  key: url.bar
+          resources:
+{{ toYaml .Values.frontend.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
