@@ -23,7 +23,7 @@ spec:
         component: {{ .Values.backendfoo.name }}
     spec:
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ .Values.backendfoo.name }}
           image: "{{ .Values.backendfoo.image.repository }}:{{ .Values.backendfoo.image.tag }}"
           imagePullPolicy: {{ .Values.backendfoo.image.pullPolicy }}
           ports:
