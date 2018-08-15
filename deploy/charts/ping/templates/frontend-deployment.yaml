@@ -17,6 +17,8 @@ spec:
       component: {{ .Values.frontend.name }}
   template:
     metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/frontend-config.yaml") . | sha256sum }}
       labels:
         app: {{ template "ping.name" . }}
         release: {{ .Release.Name }}
